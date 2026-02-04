@@ -15,16 +15,16 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (socket.connected) {
+
+    const handleConnect = () => {
       setSocketID(socket.id);
-      console.log("already connected", socket.id);
-    }
-    socket.on("connect", () => {
-      setSocketID(socket.id)
       console.log('socket connected!', socket.id);
-    })
+    };
+
+    socket.on("connect", handleConnect);
 
     socket.on("recieve-message", (info) => {
+      setMessages((msg) => [...msg, info]);
       console.log('got a message: ', info);
     });
   }, [])
@@ -41,9 +41,9 @@ const App = () => {
       </div>
       <div className="messages">
         <h5>message window</h5>
-        {
-          
-        }
+        {messages.map((msg, index) => (
+          <div key={index}>{msg}</div>
+        ))}
       </div>
     </div>
     </>
