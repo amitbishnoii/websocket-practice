@@ -30,8 +30,7 @@ io.on("connection", (socket) => {
 
     socket.on("message", (data) => {
         console.log(data);
-        // io.emit("recieve-message", data);
-        socket.broadcast.emit("recieve-message", data);
+        io.to(data.room).emit("recieve-message", data.message);
     });
 
     socket.on("disconnect", () => {
