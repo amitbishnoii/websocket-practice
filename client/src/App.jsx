@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import socket from '../config/socket.js';
+import "./App.css"
 
 const App = () => {
   const [message, setMessage] = useState("");
@@ -30,8 +31,11 @@ const App = () => {
 
   return (
     <>
-      <input type="text" value={message} onChange={handleChange} placeholder="Message..."/>
-      <button onClick={handleSend}>Send</button>
+      <div className='container'>
+
+        <input type="text" value={message} onChange={handleChange} placeholder="Message..." className='message-input' />
+        <button onClick={handleSend} className='send-button'>Send</button>
+      </div>
     </>
   )
 }
