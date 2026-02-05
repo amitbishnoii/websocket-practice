@@ -3,18 +3,31 @@ import socket from '../config/socket.js';
 import "./App.css"
 
 const App = () => {
+  const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [room, setRoom] = useState("");
   const [socketID, setSocketID] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [roomName, setRoomName] = useState("");
 
   const handleSend = () => {
     console.log('message sent');
-    socket.emit("message", {message, room});
+    setMessages((msg) => [...msg, message]);
+    socket.emit("message", { message, room });
     setMessage("");
   };
 
+  const handleRoomEvent = () => {
+    console.log('room joined!!');
+    socket.emit("join-room", roomName);
+    setRoomName("");
+  }
+
+
   useEffect(() => {
+    const handleReceive = (info) => {
+      setMessages((msg) => [...msg, info]);
+      console.log('got a message: ', info);
+    };
 
     const handleConnect = () => {
       setSocketID(socket.id);
@@ -22,30 +35,39 @@ const App = () => {
     };
 
     socket.on("connect", handleConnect);
+    socket.on("recieve-message", handleReceive);
 
-    socket.on("recieve-message", (info) => {
-      setMessages((msg) => [...msg, info]);
-      console.log('got a message: ', info);
-    });
+    return () => socket.off("recieve-message", handleReceive);
   }, [])
 
   return (
     <>
-    <div className="parent">
+      <div className="parent">
 
-      <div className='container'>
-        <h5>{socketID}</h5>
-        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message..." className='message-input' />
-        <input type="text" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="Room ID..." className='message-input' />
-        <button onClick={handleSend} className='send-button'>Send</button>
+        <div className='container'>
+
+          <input type="text" value={roomName} onChange={(e) => setRoomName(e.target.value)} placeholder="Room ID..." className='input' />
+          <button className="button" onClick={handleRoomEvent}>
+            Join
+          </button>
+
+          <h5>{socketID}</h5>
+
+          <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message..." className='input' />
+          <input type="text" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="Room..." className='input' />
+          <button onClick={handleSend} className='button'>
+            Send
+          </button>
+
+        </div>
+
+        <div className="messages">
+          <h5>message window</h5>
+          {messages.map((msg, index) => (
+            <div key={index}>{msg}</div>
+          ))}
+        </div>
       </div>
-      <div className="messages">
-        <h5>message window</h5>
-        {messages.map((msg, index) => (
-          <div key={index}>{msg}</div>
-        ))}
-      </div>
-    </div>
     </>
   )
 }
